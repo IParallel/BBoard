@@ -1,20 +1,23 @@
 package com.bello.bboard.Utils;
 
+
 public class BBConfig {
-    private String version = "";
+    private String outputAdapter = "";
+    private String inputAdapter = "";
 
-    @Override
-    public String toString() {
-        return "BBConfig{" +
-                "version='" + version + '\'' +
-                '}';
+    public String getOutputAdapter() {
+        return outputAdapter;
     }
 
-    public String getVersion() {
-        return version;
+    public void setOutputAdapter(String outputAdapter) {
+        this.outputAdapter = outputAdapter;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public String getInputAdapter() {
+        return inputAdapter;
+    }
+
+    public void setInputAdapter(String inputAdapter) {
+        this.inputAdapter = inputAdapter;
     }
 }

@@ -1,6 +1,7 @@
 package com.bello.bboard.Adapter;
 
 import com.bello.bboard.Utils.BBConfig;
+
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -14,8 +15,10 @@ public class ConfigAdapter extends TypeAdapter<BBConfig> {
     public void write(JsonWriter writer, BBConfig value) throws IOException {
         //write the keys with their respective value
         writer.beginObject();
-        writer.name("version");
-        writer.value(value.getVersion());
+        writer.name("inputAdapter");
+        writer.value(value.getInputAdapter());
+        writer.name("outputAdapater");
+        writer.value(value.getOutputAdapter());
         writer.endObject();
     }
 
@@ -33,9 +36,9 @@ public class ConfigAdapter extends TypeAdapter<BBConfig> {
                 fieldname = reader.nextName();
             }
 
-            if ("version".equals(fieldname)) {
-                //move to next token
-                bbConfig.setVersion(reader.nextString());
+            switch (fieldname) {
+                case "outputAdapter" -> bbConfig.setOutputAdapter(reader.nextString());
+                case "inputAdapter" -> bbConfig.setInputAdapter(reader.nextString());
             }
         }
         reader.endObject();

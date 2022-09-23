@@ -39,12 +39,12 @@ public class ConfigManager {
 
             // print user object
             System.out.println(user);
-
+            config = user;
             // close reader
             reader.close();
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
