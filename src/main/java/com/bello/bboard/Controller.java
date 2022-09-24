@@ -1,8 +1,20 @@
 package com.bello.bboard;
 
+import com.bello.bboard.AudioManager.AudioStream;
+import com.bello.bboard.Utils.GlobalControls;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class Controller {
 
@@ -14,15 +26,102 @@ public class Controller {
     @FXML
     protected ChoiceBox<String> outputList = new ChoiceBox<>();
 
+    @FXML
+    protected Button startStopButton;
+
 
     @FXML
-    protected void deleteHotkey() {
+    protected void deleteHotkey() throws IOException {
         int selectedIndex = hotkeyContainer.getSelectionModel().getSelectedIndex();
 
         if (selectedIndex == -1) return;
 
         hotkeyContainer.getItems().remove(selectedIndex);
+        Bboard.config.getConfig().getHotkeys().remove(selectedIndex);
+        Bboard.config.saveConfig();
+    }
 
+
+    @FXML
+    protected void addHotkey() throws IOException {
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        FXMLLoader fxmlLoader = new FXMLLoader(Bboard.class.getResource("addHotkey.fxml"));
+        Parent load = fxmlLoader.load();
+        addHotkeyControllers controller = fxmlLoader.getController();
+        Scene scene = new Scene(load);
+        scene.setOnDragOver(event -> {
+            if (event.getGestureSource() != scene
+                    && event.getDragboard().hasFiles()) {
+                /* allow for both copying and moving, whatever user chooses */
+                event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            }
+            event.consume();
+        });
+        scene.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+            if (db.hasFiles()) {
+                controller.filePath.setText(db.getFiles().get(0).getAbsolutePath());
+                success = true;
+            }
+            /* let the source know whether the string was successfully
+             * transferred and used */
+            event.setDropCompleted(success);
+            event.consume();
+        });
+        stage.setTitle("Add a hotkey and a file");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public void startStopMixer() {
+        AudioStream audioStream = Bboard.audioStream;
+        if (audioStream.isRunning()) {
+            startStopButton.setText("Start");
+            audioStream.setStop(true);
+        }else {
+            startStopButton.setText("Stop");
+            audioStream.start();
+        }
+    }
+
+    public void editHotkey() throws IOException {
+        Controller mainCtrls = GlobalControls.getControllers();
+        int selectedIndex = mainCtrls.hotkeyContainer.getSelectionModel().getSelectedIndex();
+        if (selectedIndex == -1) return;
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        FXMLLoader fxmlLoader = new FXMLLoader(Bboard.class.getResource("addHotkey.fxml"));
+        Parent load = fxmlLoader.load();
+        addHotkeyControllers controller = fxmlLoader.getController();
+        String[] split = Bboard.config.getConfig().getHotkeys().get(selectedIndex).split(";");
+        controller.filePath.setText(split[1]);
+        controller.hotkeyField.setText(split[0]);
+        Scene scene = new Scene(load);
+        scene.setOnDragOver(event -> {
+            if (event.getGestureSource() != scene
+                    && event.getDragboard().hasFiles()) {
+                /* allow for both copying and moving, whatever user chooses */
+                event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            }
+            event.consume();
+        });
+        scene.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+            if (db.hasFiles()) {
+                controller.filePath.setText(db.getFiles().get(0).getAbsolutePath());
+                success = true;
+            }
+            /* let the source know whether the string was successfully
+             * transferred and used */
+            event.setDropCompleted(success);
+            event.consume();
+        });
+        stage.setTitle("Edit this hotkey");
+        stage.setScene(scene);
+        stage.show();
     }
 
 

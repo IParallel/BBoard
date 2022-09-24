@@ -2,12 +2,16 @@ package com.bello.bboard.Adapter;
 
 import com.bello.bboard.Utils.BBConfig;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConfigAdapter extends TypeAdapter<BBConfig> {
 
@@ -17,8 +21,10 @@ public class ConfigAdapter extends TypeAdapter<BBConfig> {
         writer.beginObject();
         writer.name("inputAdapter");
         writer.value(value.getInputAdapter());
-        writer.name("outputAdapater");
+        writer.name("outputAdapter");
         writer.value(value.getOutputAdapter());
+        writer.name("hotkeys");
+        writer.value(new Gson().toJson(value.getHotkeys()));
         writer.endObject();
     }
 
@@ -30,7 +36,6 @@ public class ConfigAdapter extends TypeAdapter<BBConfig> {
 
         while (reader.hasNext()) {
             JsonToken token = reader.peek();
-
             if (token.equals(JsonToken.NAME)) {
                 //get the current token
                 fieldname = reader.nextName();
@@ -39,6 +44,7 @@ public class ConfigAdapter extends TypeAdapter<BBConfig> {
             switch (fieldname) {
                 case "outputAdapter" -> bbConfig.setOutputAdapter(reader.nextString());
                 case "inputAdapter" -> bbConfig.setInputAdapter(reader.nextString());
+                case "hotkeys" -> bbConfig.setHotkeys(new Gson().fromJson(reader.nextString(), List.class));
             }
         }
         reader.endObject();

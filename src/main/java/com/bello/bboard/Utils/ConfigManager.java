@@ -35,11 +35,7 @@ public class ConfigManager {
             Reader reader = Files.newBufferedReader(file.toPath());
 
             // convert JSON string to User object
-            BBConfig user = gson.fromJson(reader, BBConfig.class);
-
-            // print user object
-            System.out.println(user);
-            config = user;
+            config = gson.fromJson(reader, BBConfig.class);
             // close reader
             reader.close();
 

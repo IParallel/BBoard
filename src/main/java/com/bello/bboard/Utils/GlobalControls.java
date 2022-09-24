@@ -14,4 +14,7 @@ public class GlobalControls {
     public static void setControllers(FXMLLoader loader) {
         controllers = loader.getController();
     }
+
+
+
 }

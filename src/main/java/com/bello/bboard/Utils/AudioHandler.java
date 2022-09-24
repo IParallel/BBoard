@@ -1,36 +1,51 @@
 package com.bello.bboard.Utils;
 
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Line;
-import javax.sound.sampled.Mixer;
-import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class AudioHandler {
 
-    public static DevicesList getAdapters() {
-        final List<String> outputList = new ArrayList<>();
-        final List<String> inputList = new ArrayList<>();
-        final Mixer.Info[] devices = AudioSystem.getMixerInfo();
-        final Line.Info sourceInfo = new Line.Info(SourceDataLine.class);
 
-        for (final Mixer.Info mixerInfo : devices) {
-            final Mixer mixer = AudioSystem.getMixer(mixerInfo);
+    private static HashMap<String, Mixer.Info> outPutMixers = new HashMap<>();
+    private static HashMap<String, Mixer.Info> inputMixers = new HashMap<>();
 
-            Mixer.Info info = mixer.getMixerInfo();
-            final String data = info.getName() + " - " + info.getVendor();
-            if (mixer.isLineSupported(sourceInfo)) {
-                // the device supports output, add as suitable
-                outputList.add(data);
-                continue;
+    public static void filterDevices() {
+        AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
+        DataLine.Info inputInfo = new DataLine.Info(TargetDataLine.class, format);
+        DataLine.Info outputInfo = new DataLine.Info(SourceDataLine.class, format);
+        Mixer.Info[] infos = AudioSystem.getMixerInfo();
+        for (Mixer.Info info : infos) {
+            Mixer mixer = AudioSystem.getMixer(info);
+            if (mixer.isLineSupported(inputInfo)) {
+                inputMixers.put(mixer.getMixerInfo().getName(), info);
+            } else if (mixer.isLineSupported(outputInfo)) {
+                outPutMixers.put(mixer.getMixerInfo().getName(), info);
             }
-            inputList.add(data);
         }
-        return new DevicesList(outputList, inputList);
     }
 
+    public static Mixer.Info getInputDevice(String name) {
+        for (String mixerName : inputMixers.keySet())
+        {
+            if (mixerName.matches(name)) return inputMixers.get(mixerName);
+        }
+        return null;
+    }
+    public static Mixer.Info getOutputDevice(String name) {
+        for (String mixerName : outPutMixers.keySet())
+        {
+            if (mixerName.matches(name)) return outPutMixers.get(mixerName);
+        }
+        return null;
+    }
 
+    public static HashMap<String, Mixer.Info> getOutPutMixers() {
+        return outPutMixers;
+    }
 
-
+    public static HashMap<String, Mixer.Info> getInputMixers() {
+        return inputMixers;
+    }
 }

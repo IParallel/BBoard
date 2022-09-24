@@ -1,3 +1,5 @@
 {
-  "version": "1"
+  "inputAdapter": "Microphone (Realtek High Definition Audio)",
+  "outputAdapter": "Speakers (Realtek High Definition Audio)",
+  "hotkeys": "[]"
 }

@@ -7,6 +7,7 @@ plugins {
 }
 
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
 
 group 'com.bello'
 version '1.0-SNAPSHOT'
@@ -36,7 +37,7 @@ tasks.withType(JavaCompile) {
 
 application {
     mainModule = 'com.bello.bboard'
-    mainClass = 'com.bello.bboard.HelloApplication'
+    mainClass = 'com.bello.bboard.Main'
 }
 
 javafx {
