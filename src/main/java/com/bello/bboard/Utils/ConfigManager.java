@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class ConfigManager {
 
@@ -20,6 +21,7 @@ public class ConfigManager {
     public ConfigManager() {
         file = new File("./config/cfg.json");
         try {
+            Files.createDirectory(Path.of("./config/"));
             if (!file.exists()) {
                 file.createNewFile();
                 saveConfig();

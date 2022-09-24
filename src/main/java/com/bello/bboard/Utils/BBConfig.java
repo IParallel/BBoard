@@ -10,6 +10,16 @@ public class BBConfig {
     private String inputAdapter = "";
     private List<String> hotkeys = new ArrayList<>();
 
+    private HashMap<String, String> keys = new HashMap<>();
+
+    public HashMap<String, String> getKeys() {
+        return keys;
+    }
+
+    public void setKeys(HashMap<String, String> keys) {
+        this.keys = keys;
+    }
+
     public void addHotkey(String hotkey) {
         this.hotkeys.add(hotkey);
     }

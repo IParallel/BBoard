@@ -9,12 +9,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
+import javafx.scene.image.Image;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class Controller {
 
@@ -50,6 +52,7 @@ public class Controller {
         Parent load = fxmlLoader.load();
         addHotkeyControllers controller = fxmlLoader.getController();
         Scene scene = new Scene(load);
+        stage.getIcons().add(new Image(Objects.requireNonNull(Bboard.class.getResourceAsStream("icon.jpg"))));
         scene.setOnDragOver(event -> {
             if (event.getGestureSource() != scene
                     && event.getDragboard().hasFiles()) {
@@ -92,6 +95,7 @@ public class Controller {
         if (selectedIndex == -1) return;
         Stage stage = new Stage();
         stage.initModality(Modality.APPLICATION_MODAL);
+        stage.getIcons().add(new Image(Objects.requireNonNull(Bboard.class.getResourceAsStream("icon.jpg"))));
         FXMLLoader fxmlLoader = new FXMLLoader(Bboard.class.getResource("addHotkey.fxml"));
         Parent load = fxmlLoader.load();
         addHotkeyControllers controller = fxmlLoader.getController();

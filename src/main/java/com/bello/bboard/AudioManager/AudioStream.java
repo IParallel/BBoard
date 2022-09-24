@@ -3,6 +3,7 @@ package com.bello.bboard.AudioManager;
 import com.bello.bboard.Bboard;
 
 import javax.sound.sampled.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -10,6 +11,15 @@ import java.util.Objects;
 public class AudioStream {
     private boolean stop = false;
     private boolean isRunning = false;
+
+    private boolean playingSound = false;
+
+    private ClipAudioPlayer clipAudioPlayer;
+
+    public AudioStream() {
+        clipAudioPlayer = new ClipAudioPlayer(this);
+    }
+
     public void setStop(boolean stop) {
         this.stop = stop;
     }
@@ -41,11 +51,11 @@ public class AudioStream {
             int CHUNK_SIZE = 1024;
             DataLine.Info info2 = new DataLine.Info(SourceDataLine.class, format);
             List<Mixer.Info> infos = filterDevices(info2);
-            Mixer mixer = null;
+            Mixer outputMixer = null;
             for (Mixer.Info in : infos) {
-                if (Objects.equals(in.getName(), Bboard.config.getConfig().getOutputAdapter())) mixer = AudioSystem.getMixer(in);
+                if (Objects.equals(in.getName(), Bboard.config.getConfig().getOutputAdapter())) outputMixer = AudioSystem.getMixer(in);
             }
-            SourceDataLine sourceDataLine = (SourceDataLine) mixer.getLine(info2);
+            SourceDataLine sourceDataLine = (SourceDataLine) outputMixer.getLine(info2);
 
             sourceDataLine.open();
             sourceDataLine.start();
@@ -58,13 +68,18 @@ public class AudioStream {
                 }
                 setStop(false);
                 isRunning = false;
+                clipAudioPlayer.stop();
                 sourceDataLine.stop();
                 sourceDataLine.close();
                 dataLine.stop();
                 dataLine.close();
             });
-
             micLoopBack.start();
+
+
+            Clip clip = AudioSystem.getClip(outputMixer.getMixerInfo());
+            clipAudioPlayer.setSoundPlayer(clip);
+            //TODO:
 
             //JOptionPane.showMessageDialog(null, "Hit ok to stop");
 
@@ -73,6 +88,20 @@ public class AudioStream {
         } catch (Exception e) {
             System.out.println(e);
         }
+    }
+
+    public ClipAudioPlayer getClipAudioPlayer() {
+        return clipAudioPlayer;
+    }
+
+    public AudioInputStream getStream(String path) throws UnsupportedAudioFileException, IOException {
+        AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(new File(path).getAbsoluteFile());
+        AudioFormat sourceFormat = mp3Stream.getFormat();
+        // create audio format object for the desired stream/audio format
+        // this is *not* the same as the file format (wav)
+        AudioFormat convertFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
+        // create stream that delivers the desired format
+        return AudioSystem.getAudioInputStream(convertFormat, mp3Stream);
     }
 
     private List<Mixer.Info> filterDevices(final Line.Info supportedLine) {

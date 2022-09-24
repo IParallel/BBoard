@@ -2,18 +2,13 @@ package com.bello.bboard;
 
 import com.bello.bboard.AudioManager.AudioStream;
 import com.bello.bboard.Utils.*;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import javax.sound.sampled.LineUnavailableException;
 import java.io.IOException;
@@ -26,9 +21,16 @@ public class Bboard extends Application {
 
     public static AudioStream audioStream = new AudioStream();
 
+    public static KeyboardListener keyboard = new KeyboardListener();
+
     @Override
     public void start(Stage stage) throws IOException, LineUnavailableException {
-        audioStream.debugg();
+        Platform.setImplicitExit(true);
+        stage.setOnCloseRequest((ae) -> {
+            Platform.exit();
+            System.exit(0);
+        });
+        //audioStream.debugg();
         AudioHandler.filterDevices();
 
         FXMLLoader fxmlLoader = new FXMLLoader(Bboard.class.getResource("hello-view.fxml"));
@@ -38,7 +40,7 @@ public class Bboard extends Application {
         Scene scene = new Scene(load, 400, 400);
         labelsChange();
         setEvents();
-        stage.getIcons().add(new Image("https://t3.ftcdn.net/jpg/03/25/51/78/360_F_325517814_G7uy7THr1Y2SJM5MbLWQmmkz9frN7NcD.jpg"));
+        stage.getIcons().add(new Image(Objects.requireNonNull(Bboard.class.getResourceAsStream("icon.jpg"))));
         stage.setTitle("BBoard");
         stage.setScene(scene);
         stage.show();
@@ -59,10 +61,12 @@ public class Bboard extends Application {
         Controller controller = GlobalControls.getControllers();
         controller.hotkeyContainer.getItems().clear();
         BBConfig cfg = config.getConfig();
+        cfg.getKeys().clear();
         List<String> keys = cfg.getHotkeys().stream().map(item -> {
             String[] hotkey = item.split(";");
             String key = hotkey[0];
             String file = hotkey[1];
+            cfg.getKeys().put(key.toUpperCase(), file);
             return "Hotkey: " + key + "    File: " + file;
         }).toList();
         controller.hotkeyContainer.getItems().addAll(keys);
@@ -70,26 +74,20 @@ public class Bboard extends Application {
 
     public void setEvents() {
         Controller controller = GlobalControls.getControllers();
-        controller.inputList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                config.getConfig().setInputAdapter(newValue);
-                try {
-                    config.saveConfig();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+        controller.inputList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            config.getConfig().setInputAdapter(newValue);
+            try {
+                config.saveConfig();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
-        controller.outputList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                config.getConfig().setOutputAdapter(newValue);
-                try {
-                    config.saveConfig();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+        controller.outputList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            config.getConfig().setOutputAdapter(newValue);
+            try {
+                config.saveConfig();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
 

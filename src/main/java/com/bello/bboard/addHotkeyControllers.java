@@ -5,12 +5,15 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 public class addHotkeyControllers {
 
@@ -24,6 +27,9 @@ public class addHotkeyControllers {
 
     @FXML
     public Label MSG;
+
+    @FXML
+    public Button saveButton;
 
     @FXML
     public void clickSaveButton() throws IOException {
@@ -42,6 +48,8 @@ public class addHotkeyControllers {
             return;
         }
 
+        Stage stage = (Stage) saveButton.getScene().getWindow();
+
         Controller controllers = GlobalControls.getControllers();
         int selectedIndex = controllers.hotkeyContainer.getSelectionModel().getSelectedIndex();
         String newHotkey = hotkeyField.getText() + ";" + filePath.getText();
@@ -51,8 +59,10 @@ public class addHotkeyControllers {
             Bboard.updateList();
             Bboard.config.saveConfig();
             info("EDIT SAVED!");
+            stage.close();
             return;
         }
+        stage.close();
         Bboard.config.getConfig().addHotkey(newHotkey);
         Bboard.updateList();
         Bboard.config.saveConfig();
