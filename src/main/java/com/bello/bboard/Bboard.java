@@ -33,7 +33,7 @@ public class Bboard extends Application {
         //audioStream.debugg();
         AudioHandler.filterDevices();
 
-        FXMLLoader fxmlLoader = new FXMLLoader(Bboard.class.getResource("hello-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(Bboard.class.getResource("bboard.fxml"));
         config.loadConfig();
         Parent load = fxmlLoader.load();
         GlobalControls.setControllers(fxmlLoader);
