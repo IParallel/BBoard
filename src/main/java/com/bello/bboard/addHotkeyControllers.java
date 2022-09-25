@@ -1,6 +1,7 @@
 package com.bello.bboard;
 
 import com.bello.bboard.Utils.GlobalControls;
+import com.bello.bboard.Utils.KeyboardListener;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -32,6 +33,13 @@ public class addHotkeyControllers {
     public Button saveButton;
 
     @FXML
+    public void grabKeys() {
+        String lastCombination = KeyboardListener.getLastCombination();
+        hotkeyField.setText(lastCombination);
+    }
+
+
+    @FXML
     public void clickSaveButton() throws IOException {
 
         if (hotkeyField.getText().isEmpty()) {
@@ -60,8 +68,27 @@ public class addHotkeyControllers {
             Bboard.config.saveConfig();
             info("EDIT SAVED!");
             stage.close();
+        }
+    }
+
+    public void clickSaveAddButton() throws IOException {
+
+        if (hotkeyField.getText().isEmpty()) {
+            info("PLEASE SET A HOTKEY");
             return;
         }
+        if (filePath.getText().isEmpty()) {
+            info("PLEASE SET A FILE");
+            return;
+        }
+
+        if (!wl.contains(filePath.getText().substring(filePath.getText().length() -4))) {
+            info("PLEASE USE A VALID SOUND FILE: mp3, wav");
+            return;
+        }
+
+        Stage stage = (Stage) saveButton.getScene().getWindow();
+        String newHotkey = hotkeyField.getText() + ";" + filePath.getText();
         stage.close();
         Bboard.config.getConfig().addHotkey(newHotkey);
         Bboard.updateList();

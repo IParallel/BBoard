@@ -37,7 +37,7 @@ public class Bboard extends Application {
         config.loadConfig();
         Parent load = fxmlLoader.load();
         GlobalControls.setControllers(fxmlLoader);
-        Scene scene = new Scene(load, 400, 400);
+        Scene scene = new Scene(load, 600, 400);
         labelsChange();
         setEvents();
         stage.getIcons().add(new Image(Objects.requireNonNull(Bboard.class.getResourceAsStream("icon.jpg"))));
@@ -52,7 +52,9 @@ public class Bboard extends Application {
         controller.inputList.getSelectionModel().select(Objects.equals(cfg.getInputAdapter(), "") ? "Select Input Driver" : cfg.getInputAdapter());
         controller.outputList.getSelectionModel().select(Objects.equals(cfg.getOutputAdapter(), "") ? "Select Output Driver" : cfg.getOutputAdapter());
         controller.inputList.getItems().addAll(AudioHandler.getInputMixers().keySet().stream().toList());
+        controller.inputList.getItems().add("None");
         controller.outputList.getItems().addAll(AudioHandler.getOutPutMixers().keySet().stream().toList());
+        controller.outputList.getItems().add("None");
         updateList();
     }
 

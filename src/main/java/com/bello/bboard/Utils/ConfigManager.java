@@ -21,7 +21,7 @@ public class ConfigManager {
     public ConfigManager() {
         file = new File("./config/cfg.json");
         try {
-            Files.createDirectory(Path.of("./config/"));
+            Files.createDirectories(Path.of("./config/"));
             if (!file.exists()) {
                 file.createNewFile();
                 saveConfig();

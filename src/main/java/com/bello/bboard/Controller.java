@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -27,6 +28,9 @@ public class Controller {
 
     @FXML
     protected ChoiceBox<String> outputList = new ChoiceBox<>();
+
+    @FXML
+    protected Slider volumeControl = new Slider();
 
     @FXML
     protected Button startStopButton;
@@ -53,6 +57,7 @@ public class Controller {
         addHotkeyControllers controller = fxmlLoader.getController();
         Scene scene = new Scene(load);
         stage.getIcons().add(new Image(Objects.requireNonNull(Bboard.class.getResourceAsStream("icon.jpg"))));
+        stage.setResizable(false);
         scene.setOnDragOver(event -> {
             if (event.getGestureSource() != scene
                     && event.getDragboard().hasFiles()) {
@@ -80,13 +85,22 @@ public class Controller {
 
     public void startStopMixer() {
         AudioStream audioStream = Bboard.audioStream;
-        if (audioStream.isRunning()) {
+        if (audioStream.isRunning() || !audioStream.getClipAudioPlayer().isStopped()) {
             startStopButton.setText("Start");
             audioStream.setStop(true);
+            audioStream.stopClip();
+            audioStream.setRunning(false);
+            audioStream.getClipAudioPlayer().setStopped(true);
         }else {
             startStopButton.setText("Stop");
             audioStream.start();
+            audioStream.getClipAudioPlayer().setStopped(false);
         }
+    }
+
+    public void volumeChange() throws IOException {
+        Bboard.config.getConfig().setVolume((int) volumeControl.getValue());
+        Bboard.config.saveConfig();
     }
 
     public void editHotkey() throws IOException {
@@ -94,9 +108,10 @@ public class Controller {
         int selectedIndex = mainCtrls.hotkeyContainer.getSelectionModel().getSelectedIndex();
         if (selectedIndex == -1) return;
         Stage stage = new Stage();
+        stage.setResizable(false);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.getIcons().add(new Image(Objects.requireNonNull(Bboard.class.getResourceAsStream("icon.jpg"))));
-        FXMLLoader fxmlLoader = new FXMLLoader(Bboard.class.getResource("addHotkey.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(Bboard.class.getResource("editHotkey.fxml"));
         Parent load = fxmlLoader.load();
         addHotkeyControllers controller = fxmlLoader.getController();
         String[] split = Bboard.config.getConfig().getHotkeys().get(selectedIndex).split(";");

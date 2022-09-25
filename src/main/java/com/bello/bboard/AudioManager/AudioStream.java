@@ -12,8 +12,6 @@ public class AudioStream {
     private boolean stop = false;
     private boolean isRunning = false;
 
-    private boolean playingSound = false;
-
     private ClipAudioPlayer clipAudioPlayer;
 
     public AudioStream() {
@@ -33,55 +31,68 @@ public class AudioStream {
             if (isRunning) return;
             isRunning = true;
             AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100, 16, 2, 4, 44100, false);
+            String inputAdapter = Bboard.config.getConfig().getInputAdapter();
+            if (!(inputAdapter.isBlank() || Objects.equals(inputAdapter, "None"))) {
+                DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
 
-            DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
+                if (!AudioSystem.isLineSupported(info)) {
+                    System.out.println("Not Supported");
+                }
 
-            if (!AudioSystem.isLineSupported(info)) {
-                System.out.println("Not Supported");
+                List<Mixer.Info> inputInfos = filterDevices(info);
+                Mixer inputMixer = null;
+                for (Mixer.Info in : inputInfos) {
+                    if (Objects.equals(in.getName(), inputAdapter)) inputMixer = AudioSystem.getMixer(in);
+                }
+                TargetDataLine dataLine = (TargetDataLine) inputMixer.getLine(info);
+                dataLine.open();
+                dataLine.start();
+                int CHUNK_SIZE = 1024;
+                DataLine.Info info2 = new DataLine.Info(SourceDataLine.class, format);
+                List<Mixer.Info> infos = filterDevices(info2);
+                Mixer outputMixer = null;
+                for (Mixer.Info in : infos) {
+                    if (Objects.equals(in.getName(), Bboard.config.getConfig().getOutputAdapter()))
+                        outputMixer = AudioSystem.getMixer(in);
+                }
+                SourceDataLine sourceDataLine = (SourceDataLine) outputMixer.getLine(info2);
+
+                sourceDataLine.open();
+                sourceDataLine.start();
+                setStop(false);
+                Thread micLoopBack = new Thread(() -> {
+                    int actualReading = 0;
+                    byte[] data = new byte[dataLine.getBufferSize() / 5];
+                    while (!isStop()) {
+                        actualReading = dataLine.read(data, 0, CHUNK_SIZE);
+                        sourceDataLine.write(data, 0, actualReading);
+                    }
+                    setStop(false);
+                    isRunning = false;
+                    clipAudioPlayer.stop();
+                    sourceDataLine.stop();
+                    sourceDataLine.close();
+                    dataLine.stop();
+                    dataLine.close();
+                    Thread.currentThread().interrupt();
+                });
+                micLoopBack.start();
+
+                Clip clip = AudioSystem.getClip(outputMixer.getMixerInfo());
+                clipAudioPlayer.setSoundPlayer(clip);
+                return;
             }
 
-            List<Mixer.Info> inputInfos = filterDevices(info);
-            Mixer inputMixer = null;
-            for (Mixer.Info in : inputInfos) {
-                if (Objects.equals(in.getName(), Bboard.config.getConfig().getInputAdapter())) inputMixer = AudioSystem.getMixer(in);
-            }
-            TargetDataLine dataLine = (TargetDataLine) inputMixer.getLine(info);
-            dataLine.open();
-            dataLine.start();
-            int CHUNK_SIZE = 1024;
             DataLine.Info info2 = new DataLine.Info(SourceDataLine.class, format);
             List<Mixer.Info> infos = filterDevices(info2);
             Mixer outputMixer = null;
             for (Mixer.Info in : infos) {
-                if (Objects.equals(in.getName(), Bboard.config.getConfig().getOutputAdapter())) outputMixer = AudioSystem.getMixer(in);
+                if (Objects.equals(in.getName(), Bboard.config.getConfig().getOutputAdapter()))
+                    outputMixer = AudioSystem.getMixer(in);
             }
-            SourceDataLine sourceDataLine = (SourceDataLine) outputMixer.getLine(info2);
-
-            sourceDataLine.open();
-            sourceDataLine.start();
-            Thread micLoopBack = new Thread(() -> {
-                int actualReading = 0;
-                byte[] data = new byte[dataLine.getBufferSize() / 5];
-                while (!isStop()) {
-                    actualReading = dataLine.read(data, 0, CHUNK_SIZE);
-                    sourceDataLine.write(data, 0, actualReading);
-                }
-                setStop(false);
-                isRunning = false;
-                clipAudioPlayer.stop();
-                sourceDataLine.stop();
-                sourceDataLine.close();
-                dataLine.stop();
-                dataLine.close();
-            });
-            micLoopBack.start();
-
-
             Clip clip = AudioSystem.getClip(outputMixer.getMixerInfo());
             clipAudioPlayer.setSoundPlayer(clip);
-            //TODO:
 
-            //JOptionPane.showMessageDialog(null, "Hit ok to stop");
 
         } catch (LineUnavailableException ex) {
             throw new RuntimeException(ex);
@@ -115,6 +126,10 @@ public class AudioStream {
             }
         }
         return result;
+    }
+
+    public void stopClip() {
+        clipAudioPlayer.stop();
     }
 
     public void debugg() throws LineUnavailableException {
@@ -193,5 +208,9 @@ public class AudioStream {
 
     public boolean isRunning() {
         return isRunning;
+    }
+
+    public void setRunning(boolean d) {
+        isRunning = d;
     }
 }

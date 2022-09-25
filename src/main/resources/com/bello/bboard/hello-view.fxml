@@ -4,6 +4,7 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -12,17 +13,19 @@
 
 <AnchorPane prefHeight="800.0" prefWidth="800.0" style="-fx-background-color: #101010;" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bello.bboard.Controller">
    <children>
-      <ListView fx:id="hotkeyContainer" layoutX="6.0" layoutY="132.0" prefHeight="592.0" prefWidth="793.0" style="-fx-background-color: #2F2F2F;" AnchorPane.bottomAnchor="44.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="103.0" />
-      <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="103.0" prefWidth="800.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <ListView fx:id="hotkeyContainer" layoutX="6.0" layoutY="156.0" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #2F2F2F;" AnchorPane.bottomAnchor="44.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="156.0" />
+      <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="156.0" prefWidth="800.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
         <rowConstraints>
-            <RowConstraints maxHeight="267.0" minHeight="10.0" prefHeight="68.33333206176758" valignment="CENTER" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="267.0" minHeight="0.0" prefHeight="50.666664123535156" valignment="CENTER" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="267.0" minHeight="10.0" prefHeight="49.33333206176758" valignment="CENTER" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="267.0" minHeight="0.0" prefHeight="60.66666793823242" valignment="CENTER" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="267.0" minHeight="10.0" prefHeight="50.666664123535156" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
+            <Slider fx:id="volumeControl" blockIncrement="1.0" majorTickUnit="10.0" maxHeight="-Infinity" maxWidth="-Infinity" min="-80.0" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#volumeChange" onMouseReleased="#volumeChange" prefHeight="38.0" prefWidth="246.0" showTickLabels="true" showTickMarks="true" value="50.0" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
             <ChoiceBox fx:id="inputList" accessibleRole="CONTEXT_MENU" prefHeight="26.0" prefWidth="321.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
             <Label text="Output" textFill="#bd01fc" GridPane.halignment="CENTER">
                <font>

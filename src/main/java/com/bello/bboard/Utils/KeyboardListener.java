@@ -14,6 +14,8 @@ import java.util.HashMap;
 public class KeyboardListener implements NativeKeyListener {
 
     private String lastPresed = "";
+
+    private static String lastCombination = "";
     private volatile boolean isStillSomethingPressed = false;
     public KeyboardListener() {
         try {
@@ -49,6 +51,7 @@ public class KeyboardListener implements NativeKeyListener {
             try {
                 //System.out.println(lastPresed.toUpperCase());
                 Bboard.audioStream.getClipAudioPlayer().keyPressed(lastPresed.toUpperCase());
+                lastCombination = lastPresed.toUpperCase();
                 lastPresed = "";
             } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
                 throw new RuntimeException(ex);
@@ -66,6 +69,10 @@ public class KeyboardListener implements NativeKeyListener {
             keys.remove(NativeKeyEvent.getKeyText(e.getKeyCode()));
         }
         isStillSomethingPressed = false;
+    }
+
+    public static String getLastCombination() {
+        return lastCombination;
     }
 
     public void nativeKeyTyped(NativeKeyEvent e) {
